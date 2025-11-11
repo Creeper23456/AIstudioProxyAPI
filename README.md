@@ -35,14 +35,14 @@ This project is generously sponsored by ZMTO. Visit their website: [https://zmto
 | **操作系统** | Windows / macOS / Linux | - | 完全跨平台支持，Docker 支持 x86_64 和 ARM64 |
 | **内存** | ≥2GB | ≥4GB | 浏览器自动化需要 |
 | **网络** | 稳定互联网连接 | - | 可配置代理访问 Google AI Studio |
-| **依赖管理** | Poetry | 最新版本 | 现代化 Python 依赖管理工具 |
+| **依赖管理** | uv | 最新版本 | 极快的 Python 依赖管理工具 |
 | **类型检查** | Pyright (可选) | 最新版本 | 用于开发时类型检查和 IDE 支持 |
 
 
 ## 系统要求
 
 - **Python**: >=3.9, <4.0 (推荐 3.10+ 以获得最佳性能，Docker 环境使用 3.10)
-- **依赖管理**: [Poetry](https://python-poetry.org/) (现代化 Python 依赖管理工具，替代传统 requirements.txt)
+- **依赖管理**: [uv](https://docs.astral.sh/uv/) (极快的 Python 依赖管理工具，替代传统 requirements.txt)
 - **类型检查**: [Pyright](https://github.com/microsoft/pyright) (可选，用于开发时类型检查和 IDE 支持)
 - **操作系统**: Windows, macOS, Linux (完全跨平台支持，Docker 部署支持 x86_64 和 ARM64)
 - **内存**: 建议 2GB+ 可用内存 (浏览器自动化需要)
@@ -61,7 +61,7 @@ This project is generously sponsored by ZMTO. Visit their website: [https://zmto
 - **灵活认证系统**: 支持可选的 API 密钥认证，完全兼容 OpenAI 标准的 Bearer token 格式
 - **模块化架构**: 清晰的模块分离设计，api_utils/、browser_utils/、config/ 等独立模块
 - **统一配置管理**: 基于 `.env` 文件的统一配置方式，支持环境变量覆盖，Docker 兼容
-- **现代化开发工具**: Poetry 依赖管理 + Pyright 类型检查，提供优秀的开发体验
+- **现代化开发工具**: uv 依赖管理 + Pyright 类型检查，提供优秀的开发体验
 
 ## 系统架构
 
@@ -147,16 +147,22 @@ graph TD
 # 1️⃣ 克隆并安装
 git clone https://github.com/CJackHwang/AIstudioProxyAPI.git
 cd AIstudioProxyAPI
-poetry install  # 自动创建虚拟环境并安装依赖
+
+# 方法一：使用自动化脚本（推荐）
+./scripts/setup_uv.sh  # Linux/macOS
+.\scripts\setup_uv.ps1  # Windows PowerShell
+
+# 方法二：手动安装
+uv sync  # 自动创建虚拟环境并安装依赖
 
 # 2️⃣ 配置环境
 cp .env.example .env
 nano .env  # 编辑配置（可选，默认配置即可使用）
 
 # 3️⃣ 首次认证并启动
-poetry run python launch_camoufox.py --debug  # 首次认证（需要登录 Google）
+uv run python launch_camoufox.py --debug  # 首次认证（需要登录 Google）
 # 认证成功后，按 Ctrl+C 停止，然后使用无头模式运行：
-poetry run python launch_camoufox.py --headless
+uv run python launch_camoufox.py --headless
 ```
 
 ### 快速测试
@@ -211,10 +217,10 @@ iwr -useb https://raw.githubusercontent.com/CJackHwang/AIstudioProxyAPI/main/scr
 
 ```bash
 # macOS/Linux
-curl -sSL https://install.python-poetry.org | python3 -
+curl -LsSf https://astral.sh/uv/install.sh | sh
 
 # Windows (PowerShell)
-(Invoke-WebRequest -Uri https://install.python-poetry.org -UseBasicParsing).Content | py -
+powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
 ```
 
 #### 2. 克隆项目
@@ -227,14 +233,15 @@ cd AIstudioProxyAPI
 #### 3. 安装依赖
 
 ```bash
-poetry install
+uv sync
 ```
 
 #### 4. 安装浏览器和 Camoufox
 
 ```bash
-# 激活 Poetry 环境
-poetry shell
+# 激活 uv 环境
+source .venv/bin/activate  # Linux/macOS
+# 或者直接使用 uv run 命令
 
 # 安装 Playwright 浏览器
 playwright install firefox
@@ -249,7 +256,7 @@ python fetch_camoufox_data.py
 
 ```bash
 # 导出 requirements.txt
-poetry export -f requirements.txt --output requirements.txt --without-hashes
+uv pip freeze > requirements.txt
 
 # 使用 uv (更快)
 pip install uv
@@ -387,8 +394,9 @@ nano .env  # 或使用其他编辑器
 #### 🛠️ 开发相关
 
 - [项目架构指南](docs/architecture-guide.md) - 模块化架构设计和组件详解 🆕
-- [开发者指南](docs/development-guide.md) - Poetry、Pyright 和开发工作流程
-- [依赖版本说明](docs/dependency-versions.md) - Poetry 依赖管理和版本控制详解
+- [开发者指南](docs/development-guide.md) - uv、Pyright 和开发工作流程
+- [依赖版本说明](docs/dependency-versions.md) - uv 依赖管理和版本控制详解
+- [Poetry 到 uv 迁移指南](docs/poetry-to-uv-migration.md) - 从 Poetry 迁移到 uv 的完整指南 🆕
 
 ## 客户端配置示例
 
@@ -406,7 +414,7 @@ nano .env  # 或使用其他编辑器
 
 ## 🐳 Docker 部署
 
-本项目支持通过 Docker 进行部署，使用 **Poetry** 进行依赖管理，**完全支持 `.env` 配置文件**！
+本项目支持通过 Docker 进行部署，使用 **uv** 进行依赖管理，**完全支持 `.env` 配置文件**！
 
 > 📁 **注意**: 所有 Docker 相关文件已移至 `docker/` 目录，保持项目根目录整洁。
 
@@ -430,12 +438,12 @@ bash update.sh
 
 ### 📚 详细文档
 
-- [Docker 部署指南 (docker/README-Docker.md)](docker/README-Docker.md) - 包含完整的 Poetry + `.env` 配置说明
+- [Docker 部署指南 (docker/README-Docker.md)](docker/README-Docker.md) - 包含完整的 uv + `.env` 配置说明
 - [Docker 快速指南 (docker/README.md)](docker/README.md) - 快速开始指南
 
 ### ✨ Docker 特性
 
-- ✅ **Poetry 依赖管理**: 使用现代化的 Python 依赖管理工具
+- ✅ **uv 依赖管理**: 使用极快的 Python 依赖管理工具
 - ✅ **多阶段构建**: 优化镜像大小和构建速度
 - ✅ **配置统一**: 使用 `.env` 文件管理所有配置
 - ✅ **版本更新**: `bash update.sh` 即可完成更新
@@ -620,8 +628,3 @@ python launch_camoufox.py --helper http://helper.example.com:8080
 
 [AGPLv3](LICENSE)
 
-## 开发不易，支持作者
-
-如果您觉得本项目对您有帮助，并且希望支持作者的持续开发，欢迎通过以下方式进行捐赠。您的支持是对我们最大的鼓励！
-
-![开发不易，支持作者](./支持作者.jpg)
