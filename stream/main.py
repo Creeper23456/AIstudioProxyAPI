@@ -50,7 +50,7 @@ async def main():
         host=args.host,
         port=args.port,
         intercept_domains=args.domains,
-        upstream_proxy=args.proxy,
+        upstream_proxy=args.proxy if args.proxy and args.proxy.strip() else None,
         queue=None,
     )
 
@@ -87,7 +87,7 @@ async def builtin(queue: multiprocessing.Queue = None, port=None, proxy=None):
         host="127.0.0.1",
         port=port,
         intercept_domains=['*.google.com'],
-        upstream_proxy=proxy,
+        upstream_proxy=proxy if proxy and proxy.strip() else None,
         queue=queue,
     )
 

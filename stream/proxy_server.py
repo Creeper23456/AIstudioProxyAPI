@@ -18,12 +18,13 @@ class ProxyServer:
         self.host = host
         self.port = port
         self.intercept_domains = intercept_domains or []
-        self.upstream_proxy = upstream_proxy
+        # Handle empty string proxy as None
+        self.upstream_proxy = upstream_proxy if upstream_proxy and upstream_proxy.strip() else None
         self.queue = queue
         
         # Initialize components
         self.cert_manager = CertificateManager()
-        self.proxy_connector = ProxyConnector(upstream_proxy)
+        self.proxy_connector = ProxyConnector(self.upstream_proxy)
         
         # Create logs directory
         log_dir = Path('logs')

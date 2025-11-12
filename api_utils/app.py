@@ -93,13 +93,19 @@ def _initialize_globals():
 
 def _initialize_proxy_settings():
     import server
+    # Initialize to None to ensure no proxy configuration
+    server.PLAYWRIGHT_PROXY_SETTINGS = None
+    
     STREAM_PORT = get_environment_variable('STREAM_PORT')
     if STREAM_PORT == '0':
-        PROXY_SERVER_ENV = get_environment_variable('HTTPS_PROXY') or get_environment_variable('HTTP_PROXY')
+        # Check for external proxy configurations including UNIFIED_PROXY_CONFIG
+        PROXY_SERVER_ENV = get_environment_variable('UNIFIED_PROXY_CONFIG') or get_environment_variable('HTTPS_PROXY') or get_environment_variable('HTTP_PROXY')
     else:
+        # Use the local stream proxy
         PROXY_SERVER_ENV = f"http://127.0.0.1:{STREAM_PORT or 3120}/"
     
-    if PROXY_SERVER_ENV:
+    if PROXY_SERVER_ENV and PROXY_SERVER_ENV.strip():
+        # Only configure proxy if we have a valid proxy URL
         server.PLAYWRIGHT_PROXY_SETTINGS = {'server': PROXY_SERVER_ENV}
         if NO_PROXY_ENV:
             server.PLAYWRIGHT_PROXY_SETTINGS['bypass'] = NO_PROXY_ENV.replace(',', ';')
@@ -117,7 +123,13 @@ async def _start_stream_proxy():
             or get_environment_variable('HTTPS_PROXY')
             or get_environment_variable('HTTP_PROXY')
         )
-        server.logger.info(f"Starting STREAM proxy on port {port} with upstream proxy: {STREAM_PROXY_SERVER_ENV}")
+        # Only pass the proxy if it's a valid, non-empty string
+        if STREAM_PROXY_SERVER_ENV and STREAM_PROXY_SERVER_ENV.strip():
+            server.logger.info(f"Starting STREAM proxy on port {port} with upstream proxy: {STREAM_PROXY_SERVER_ENV}")
+        else:
+            server.logger.info(f"Starting STREAM proxy on port {port} without upstream proxy")
+            STREAM_PROXY_SERVER_ENV = None
+            
         server.STREAM_QUEUE = multiprocessing.Queue()
         server.STREAM_PROCESS = multiprocessing.Process(target=stream.start, args=(server.STREAM_QUEUE, port, STREAM_PROXY_SERVER_ENV))
         server.STREAM_PROCESS.start()

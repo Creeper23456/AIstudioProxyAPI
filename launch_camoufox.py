@@ -630,6 +630,7 @@ if __name__ == "__main__":
             if camoufox_proxy_internal: # 如果代理字符串存在且不为空
                 launch_args_for_internal_camoufox["proxy"] = {"server": camoufox_proxy_internal}
             # 如果 camoufox_proxy_internal 是 None 或空字符串，"proxy" 键就不会被添加。
+            # 注意：不要添加 "proxy": None，这会导致 "proxy: expected object, got null" 错误
             if auth_file:
                 launch_args_for_internal_camoufox["storage_state"] = auth_file
 

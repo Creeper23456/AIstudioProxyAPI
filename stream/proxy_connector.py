@@ -11,16 +11,17 @@ class ProxyConnector:
     """
 
     def __init__(self, proxy_url=None):
-        self.proxy_url = proxy_url
+        # Handle empty string proxy as None
+        self.proxy_url = proxy_url if proxy_url and proxy_url.strip() else None
         self.connector = None
 
-        if proxy_url:
+        if self.proxy_url:
             self._setup_connector()
 
     def _setup_connector(self):
         """Set up the appropriate connector based on the proxy URL"""
-        if not self.proxy_url:
-            self.connector = TCPConnector()
+        if not self.proxy_url or not self.proxy_url.strip():
+            self.connector = None  # Explicitly set to None for no proxy
             return
 
         # Parse the proxy URL
@@ -34,7 +35,7 @@ class ProxyConnector:
 
     async def create_connection(self, host, port, ssl=None):
         """Create a connection to the target host through the proxy"""
-        if not self.connector:
+        if not self.connector or not self.proxy_url:
             # Direct connection without proxy
             reader, writer = await asyncio.open_connection(host, port, ssl=ssl)
             return reader, writer
