@@ -2,30 +2,9 @@
 
 这是一个基于 Python 的代理服务器，用于将 Google AI Studio 的网页界面转换为 OpenAI 兼容的 API。通过 Camoufox (反指纹检测的 Firefox) 和 Playwright 自动化，提供稳定的 API 访问。
 
-[![Star History Chart](https://api.star-history.com/svg?repos=CJackHwang/AIstudioProxyAPI&type=Date)](https://www.star-history.com/#CJackHwang/AIstudioProxyAPI&Date)
-
-This project is generously sponsored by ZMTO. Visit their website: [https://zmto.com/](https://zmto.com/)
-
-本项目由 ZMTO 慷慨赞助服务器支持。访问他们的网站：[https://zmto.com/](https://zmto.com/)
+个人Fork版本，修改的点旨在能让项目更好、更快的跑起来。
 
 ---
-
-## 致谢 (Acknowledgements)
-
-本项目的诞生与发展，离不开以下个人、组织和社区的慷慨支持与智慧贡献：
-
-- **项目发起与主要开发**: @CJackHwang ([https://github.com/CJackHwang](https://github.com/CJackHwang))
-- **功能完善、页面操作优化思路贡献**: @ayuayue ([https://github.com/ayuayue](https://github.com/ayuayue))
-- **实时流式功能优化与完善**: @luispater ([https://github.com/luispater](https://github.com/luispater))
-- **3400+行主文件项目重构伟大贡献**: @yattin (Holt) ([https://github.com/yattin](https://github.com/yattin))
-- **项目后期高质量维护**: @Louie （[https://github.com/NikkeTryHard](https://github.com/NikkeTryHard)）
-- **社区支持与灵感碰撞**: 特别感谢 [Linux.do 社区](https://linux.do/) 成员们的热烈讨论、宝贵建议和问题反馈，你们的参与是项目前进的重要动力。
-
-同时，我们衷心感谢所有通过提交 Issue、提供建议、分享使用体验、贡献代码修复等方式为本项目默默奉献的每一位朋友。是你们共同的努力，让这个项目变得更好！
-
----
-
-**这是当前维护的 Python 版本。不再维护的 Javascript 版本请参见 [`deprecated_javascript_version/README.md`](deprecated_javascript_version/README.md)。**
 
 ## 📊 兼容性矩阵
 
@@ -65,77 +44,7 @@ This project is generously sponsored by ZMTO. Visit their website: [https://zmto
 
 ## 系统架构
 
-```mermaid
-graph TD
-    subgraph "用户端 (User End)"
-        User["用户 (User)"]
-        WebUI["Web UI (Browser)"]
-        API_Client["API 客户端 (API Client)"]
-    end
-
-    subgraph "启动与配置 (Launch & Config)"
-        GUI_Launch["gui_launcher.py (图形启动器)"]
-        CLI_Launch["launch_camoufox.py (命令行启动)"]
-        EnvConfig[".env (统一配置)"]
-        KeyFile["auth_profiles/key.txt (API Keys)"]
-        ConfigDir["config/ (配置模块)"]
-    end
-
-    subgraph "核心应用 (Core Application)"
-        FastAPI_App["api_utils/app.py (FastAPI 应用)"]
-        Routes["api_utils/routers/* (路由处理)"]
-        RequestProcessor["api_utils/request_processor.py (请求处理)"]
-        AuthUtils["api_utils/auth_utils.py (认证管理)"]
-        PageController["browser_utils/page_controller.py (页面控制)"]
-        ScriptManager["browser_utils/script_manager.py (脚本注入)"]
-        ModelManager["browser_utils/model_management.py (模型管理)"]
-        StreamProxy["stream/ (流式代理服务器)"]
-    end
-
-    subgraph "外部依赖 (External Dependencies)"
-        CamoufoxInstance["Camoufox 浏览器 (反指纹)"]
-        AI_Studio["Google AI Studio"]
-        UserScript["油猴脚本 (可选)"]
-    end
-
-    User -- "运行 (Run)" --> GUI_Launch
-    User -- "运行 (Run)" --> CLI_Launch
-    User -- "访问 (Access)" --> WebUI
-
-    GUI_Launch -- "启动 (Starts)" --> CLI_Launch
-    CLI_Launch -- "启动 (Starts)" --> FastAPI_App
-    CLI_Launch -- "配置 (Configures)" --> StreamProxy
-
-    API_Client -- "API 请求 (Request)" --> FastAPI_App
-    WebUI -- "聊天请求 (Chat Request)" --> FastAPI_App
-
-    FastAPI_App -- "读取配置 (Reads Config)" --> EnvConfig
-    FastAPI_App -- "使用路由 (Uses Routes)" --> Routes
-    AuthUtils -- "验证密钥 (Validates Key)" --> KeyFile
-    ConfigDir -- "提供设置 (Provides Settings)" --> EnvConfig
-
-    Routes -- "处理请求 (Processes Request)" --> RequestProcessor
-    Routes -- "认证管理 (Auth Management)" --> AuthUtils
-    RequestProcessor -- "控制浏览器 (Controls Browser)" --> PageController
-    RequestProcessor -- "通过代理 (Uses Proxy)" --> StreamProxy
-
-    PageController -- "模型管理 (Model Management)" --> ModelManager
-    PageController -- "脚本注入 (Script Injection)" --> ScriptManager
-    ScriptManager -- "加载脚本 (Loads Script)" --> UserScript
-    ScriptManager -- "增强功能 (Enhances)" --> CamoufoxInstance
-    PageController -- "自动化 (Automates)" --> CamoufoxInstance
-    CamoufoxInstance -- "访问 (Accesses)" --> AI_Studio
-    StreamProxy -- "转发请求 (Forwards Request)" --> AI_Studio
-
-    AI_Studio -- "响应 (Response)" --> CamoufoxInstance
-    AI_Studio -- "响应 (Response)" --> StreamProxy
-
-    CamoufoxInstance -- "返回数据 (Returns Data)" --> PageController
-    StreamProxy -- "返回数据 (Returns Data)" --> RequestProcessor
-
-    FastAPI_App -- "API 响应 (Response)" --> API_Client
-    FastAPI_App -- "UI 响应 (Response)" --> WebUI
-```
+太长不看，喜欢看的自己去原Repo看
 
 ## 🚀 快速开始
 
@@ -198,18 +107,6 @@ curl -X POST http://127.0.0.1:2048/v1/chat/completions \
 - Python 3.9+ (推荐 3.10 或 3.11)
 - 2GB+ 可用内存
 - 稳定的互联网连接
-
-### 一键安装脚本
-
-**macOS/Linux**:
-```bash
-curl -sSL https://raw.githubusercontent.com/CJackHwang/AIstudioProxyAPI/main/scripts/install.sh | bash
-```
-
-**Windows (PowerShell)**:
-```powershell
-iwr -useb https://raw.githubusercontent.com/CJackHwang/AIstudioProxyAPI/main/scripts/install.ps1 | iex
-```
 
 ### 手动安装步骤
 
